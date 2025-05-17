@@ -1,0 +1,90 @@
+/* --- Spotlight dim overlay --- */
+#dim-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9998; /* Under the form container */
+  pointer-events: none;
+}
+
+/* --- Contact form container --- */
+.contact-form__form.kam-world {
+  position: relative; /* Ensure z-index applies */
+  z-index: 9999;
+}
+
+/* --- Wrapper div containing heading, paragraph, button --- */
+.contact-form__form.kam-world > div {
+  position: relative; /* For stacking context */
+  z-index: 10000; /* Above overlay */
+}
+
+/* --- Modal backdrop --- */
+#modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 10010; /* Above everything */
+}
+
+/* --- Modal box --- */
+#modal-box {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+/* --- Close button --- */
+#modal-close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s ease-in-out;
+}
+
+#modal-close-button:hover {
+  color: #000;
+}
+
+/* --- Button styles (for the "Click here" button) --- */
+.button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* --- Right-align button container --- */
+.contact-form__form.kam-world div > div {
+  text-align: right;
+}
