@@ -1,90 +1,246 @@
-/* --- Spotlight dim overlay --- */
-#dim-overlay {
-  position: fixed;
+/* Button Styles */
+    a.button {
+      display: inline-block;
+      background-color: #90ee90; /* light green */
+      color: #000;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid #5cb85c;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 0 #5cb85c; /* 3D boxy effect */
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    a.button:hover {
+      background-color: #3e8e41; /* dark green */
+      color: #fff;
+    }
+    a.button:focus {
+      outline: none;
+      border-color: #007BFF; /* blue border */
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+    }
+    a.button:disabled,
+    a.button.disabled {
+      background-color: beige;
+      border-color: #d3cfc9;
+      color: #999;
+      box-shadow: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    a.button:active {
+      box-shadow: none; /* flat effect when clicked */
+      position: relative;
+      top: 2px;
+    }
+
+    /* Container styles */
+    .contact-form__form.kam-world {
+      max-height: 40%;
+      overflow: auto;
+      position: relative;
+      z-index: 10001;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    /* Wrapper flex container, vertical layout */
+    .contact-form__form.kam-world > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      align-items: stretch;
+    }
+
+    /* Header and paragraph container (left aligned) */
+    .contact-form__form.kam-world .header-para-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.3rem;
+    }
+
+    /* Button wrapper aligned right */
+    .contact-form__form.kam-world .button-wrapper {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 11000;
+      pointer-events: none;
+    }
+
+    /* Modal visible state */
+    .modal-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Modal Box */
+    .modal-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Close button */
+    .modal-box button.close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+
+ /* Progress Bar Container */
+#progress-bar {
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 9998; /* Under the form container */
-  pointer-events: none;
+  z-index: 1000;
+  font-family: Arial, sans-serif;
 }
 
-/* --- Contact form container --- */
-.contact-form__form.kam-world {
-  position: relative; /* Ensure z-index applies */
-  z-index: 9999;
+/* Step Container */
+#progress-bar .progress-step {
+  text-align: center;
+  cursor: pointer;
+  flex: 1;
+  user-select: none;
 }
 
-/* --- Wrapper div containing heading, paragraph, button --- */
-.contact-form__form.kam-world > div {
-  position: relative; /* For stacking context */
-  z-index: 10000; /* Above overlay */
+/* Step Label */
+#progress-bar .step-label {
+  color: #ccc;
+  font-weight: normal;
 }
 
-/* --- Modal backdrop --- */
-#modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: none; /* Hidden by default */
+/* Step Icon Wrapper */
+#progress-bar .progress-icon-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+/* Icon Circle */
+#progress-bar .step-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10010; /* Above everything */
+  font-size: 20px;
+  color: #ccc;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* --- Modal box --- */
-#modal-box {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  position: relative;
-}
-
-/* --- Close button --- */
-#modal-close-button {
+/* Checkmark */
+#progress-bar .progress-checkmark {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  border: none;
-  background: transparent;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #555;
-  transition: color 0.2s ease-in-out;
+  top: -4px;
+  right: 18%;
+  background: white;
+  border: 2px solid green;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  color: green;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
-#modal-close-button:hover {
-  color: #000;
-}
-
-/* --- Button styles (for the "Click here" button) --- */
-.button {
-  display: inline-block;
-  padding: 0.5rem 1rem;
+/* Active Step */
+#progress-bar .progress-step.active .step-icon-circle,
+#progress-bar .progress-step.completed .step-icon-circle {
   background-color: #007bff;
+}
+
+#progress-bar .progress-step.active .step-icon,
+#progress-bar .progress-step.completed .step-icon {
   color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  user-select: none;
-  transition: background-color 0.3s ease;
 }
 
-.button:hover {
-  background-color: #0056b3;
+#progress-bar .progress-step.active .step-label {
+  color: #007bff;
+  font-weight: bold;
 }
 
-/* --- Right-align button container --- */
-.contact-form__form.kam-world div > div {
-  text-align: right;
+/* Completed Step Checkmark */
+#progress-bar .progress-step.completed .progress-checkmark {
+  display: flex;
 }
+
+/* Inactive/default */
+#progress-bar .progress-step:not(.active):not(.completed) .step-icon {
+  color: #ccc;
+}
+
+#progress-bar .progress-step:not(.active):not(.completed) .step-label {
+  color: #ccc;
+}
+
+    /* Responsive Media Queries */
+    @media (max-width: 862px) and (min-width: 768px) {
+      .contact-form__form.kam-world {
+        max-height: 30%;
+        width: 75%; /* relative width so it shrinks with viewport */
+        max-width: 400px; /* smaller max-width to prevent overflow */
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 0 10px; /* less padding for narrow screens */
+      }
+    }
+    @media (max-width: 767px) {
+      .contact-form__form.kam-world {
+        max-height: none; /* remove max-height */
+        width: 95vw;
+        margin: 0 auto;
+      }
+      .contact-form__form.kam-world > div {
+        gap: 1rem;
+      }
+      .contact-form__form.kam-world .button-wrapper {
+        justify-content: flex-start; /* button left aligned on small screens */
+      }
+    }

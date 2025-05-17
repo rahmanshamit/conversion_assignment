@@ -2,154 +2,7 @@
   // Inject all required CSS styles into document head
   const styleTag = document.createElement('style');
   styleTag.textContent = `
-    /* Button Styles */
-    a.button {
-      display: inline-block;
-      background-color: #90ee90; /* light green */
-      color: #000;
-      padding: 0.6rem 1.2rem;
-      border: 2px solid #5cb85c;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: bold;
-      box-shadow: 0 4px 0 #5cb85c; /* 3D boxy effect */
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-    a.button:hover {
-      background-color: #3e8e41; /* dark green */
-      color: #fff;
-    }
-    a.button:focus {
-      outline: none;
-      border-color: #007BFF; /* blue border */
-      box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
-    }
-    a.button:disabled,
-    a.button.disabled {
-      background-color: beige;
-      border-color: #d3cfc9;
-      color: #999;
-      box-shadow: none;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-    a.button:active {
-      box-shadow: none; /* flat effect when clicked */
-      position: relative;
-      top: 2px;
-    }
-
-    /* Container styles */
-    .contact-form__form.kam-world {
-      max-height: 40%;
-      overflow: auto;
-      position: relative;
-      z-index: 10001;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-
-    /* Wrapper flex container, vertical layout */
-    .contact-form__form.kam-world > div {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      align-items: stretch;
-    }
-
-    /* Header and paragraph container (left aligned) */
-    .contact-form__form.kam-world .header-para-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.3rem;
-    }
-
-    /* Button wrapper aligned right */
-    .contact-form__form.kam-world .button-wrapper {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    /* Overlay */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 10000;
-      pointer-events: none;
-    }
-
-    /* Modal Backdrop */
-    .modal-backdrop {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 11000;
-      pointer-events: none;
-    }
-
-    /* Modal visible state */
-    .modal-backdrop.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* Modal Box */
-    .modal-box {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      max-width: 90vw;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
-    }
-
-    /* Close button */
-    .modal-box button.close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    /* Responsive Media Queries */
-    @media (max-width: 862px) and (min-width: 768px) {
-      .contact-form__form.kam-world {
-        max-height: 30%;
-        width: 75%; /* relative width so it shrinks with viewport */
-        max-width: 400px; /* smaller max-width to prevent overflow */
-        margin: 0 auto;
-        box-sizing: border-box;
-        padding: 0 10px; /* less padding for narrow screens */
-      }
-    }
-    @media (max-width: 767px) {
-      .contact-form__form.kam-world {
-        max-height: none; /* remove max-height */
-        width: 95vw;
-        margin: 0 auto;
-      }
-      .contact-form__form.kam-world > div {
-        gap: 1rem;
-      }
-      .contact-form__form.kam-world .button-wrapper {
-        justify-content: flex-start; /* button left aligned on small screens */
-      }
-    }
+    /* Paste in CSS from assignment_style.css file */
   `;
   document.head.appendChild(styleTag);
 
@@ -243,6 +96,9 @@
     requestAnimationFrame(() => {
       modalBackdrop.classList.add('visible');
     });
+
+    // Inject progress bar and initialize step logic here:
+    injectProgressBar(window.originalFormWrapper.querySelector('form'));
   });
 
   // Step 6: Close modal function
@@ -272,4 +128,130 @@
       closeModal();
     }
   });
+
+ function injectProgressBar(form) {
+  if (!form || document.getElementById('progress-bar')) return;
+
+  const steps = [
+    { id: 1, label: 'Step 1', icon: '👤' },
+    { id: 2, label: 'Step 2', icon: '✉️' },
+    { id: 3, label: 'Step 3', icon: '✅' },
+  ];
+
+  let currentStep = 1;
+  const completedSteps = new Set();
+
+  // Create Progress Bar
+  const progressBar = document.createElement('div');
+  progressBar.id = 'progress-bar';
+
+  const stepElements = steps.map(({ id, label, icon }) => {
+    const el = document.createElement('div');
+    el.className = 'progress-step';
+    el.dataset.step = id;
+
+    el.innerHTML = `
+      <div class="progress-icon-wrapper">
+        <div class="step-icon-circle">
+          <div class="step-icon">${icon}</div>
+        </div>
+        <div class="progress-checkmark">✓</div>
+      </div>
+      <div class="step-label">${label}</div>
+    `;
+
+    el.addEventListener('click', () => {
+      if (id === currentStep || completedSteps.has(id)) {
+        goToStep(id);
+      }
+    });
+
+    progressBar.appendChild(el);
+    return el;
+  });
+
+  form.insertBefore(progressBar, form.firstChild);
+
+  const firstname = form.querySelector('input[name="firstname"]');
+  const lastname = form.querySelector('input[name="lastname"]');
+  const email = form.querySelector('input[name="email"]');
+  const textarea = form.querySelector('textarea[name="how_can_we_help"]');
+  const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const thankYou = form.querySelector('.thank-you-message');
+
+  function updateProgressBarUI() {
+    stepElements.forEach((el) => {
+      const stepId = Number(el.dataset.step);
+      el.classList.toggle('active', stepId === currentStep);
+      el.classList.toggle('completed', completedSteps.has(stepId));
+    });
+  }
+
+  function goToStep(step) {
+    currentStep = step;
+
+    const showStep1 = step === 1;
+    const showStep2 = step === 2;
+    const showStep3 = step === 3;
+
+    [firstname, lastname, email].forEach(f => {
+      if (f) f.closest('fieldset')?.style?.setProperty('display', showStep1 ? '' : 'none');
+    });
+
+    [textarea, ...checkboxes].forEach(f => {
+      if (f) f.closest('fieldset')?.style?.setProperty('display', showStep2 ? '' : 'none');
+    });
+
+    if (submitBtn) submitBtn.style.display = showStep2 ? '' : 'none';
+    if (thankYou) thankYou.style.display = showStep3 ? '' : 'none';
+
+    updateProgressBarUI();
+  }
+
+  function checkStepCompletion() {
+    const step1Complete =
+      firstname?.value.trim() &&
+      lastname?.value.trim() &&
+      email?.value.trim();
+
+    const checkboxChecked = Array.from(checkboxes).some(c => c.checked);
+    const step2Complete =
+      textarea?.value.trim() &&
+      checkboxChecked;
+
+    if (step1Complete) {
+      completedSteps.add(1);
+      if (currentStep === 1) goToStep(2);
+    }
+
+    if (step2Complete) {
+      completedSteps.add(2);
+    }
+
+    updateProgressBarUI();
+  }
+
+  [firstname, lastname, email].forEach(el => {
+    el?.addEventListener('blur', checkStepCompletion);
+  });
+
+  [textarea, ...checkboxes].forEach(el => {
+    el?.addEventListener('input', checkStepCompletion);
+    el?.addEventListener('change', checkStepCompletion);
+  });
+
+  const observer = new MutationObserver(() => {
+    if (thankYou && getComputedStyle(thankYou).display !== 'none') {
+      completedSteps.add(3);
+      goToStep(3);
+    }
+  });
+  observer.observe(form, { childList: true, subtree: true });
+
+  goToStep(1); // Initial render
+}
+
+
+
 })();
