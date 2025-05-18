@@ -9,10 +9,10 @@ style.textContent = `
     background-color: rgb(209, 105, 32);
     color: black;
     text-align: left;
-    padding: 10px 20px;
+    padding: 10px 15px;
     cursor: pointer;
     font-size: 16px;
-    width: 300px;
+    width: 320px;
     border-radius: 12px 12px 0 0;
     z-index: 10001;
     display: flex;
@@ -82,6 +82,43 @@ style.textContent = `
       min-width: 140px;
     }
   }
+
+  #drawer-tab button.glider-prev,
+  #drawer-tab button.glider-next {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    color: black;
+    background: none;
+    border: none;
+  }
+
+  #drawer-tab button.glider-prev:disabled,
+  #drawer-tab button.glider-next:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  #drawer-tab .page-count {
+    font-weight: bold;
+    margin: 0 8px;
+    min-width: 40px;
+    text-align: center;
+    user-select: none;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    flex-shrink: 0;
+    width: 90px; /* fixed width to keep arrows + count visible */
+    justify-content: center; /* center arrows and count inside wrapper */
+  }
 `;
 document.head.appendChild(style);
 
@@ -113,15 +150,35 @@ if (!document.querySelector('#drawer-tab')) {
   label.className = 'drawer-label';
   label.textContent = 'Sticky Drawer';
 
+  const prevArrow = document.createElement('button');
+  prevArrow.className = 'glider-prev';
+  prevArrow.textContent = '‹';  // Left arrow
+
+  const pageCount = document.createElement('span');
+  pageCount.className = 'page-count';
+  pageCount.textContent = '1 / 1'; // will update dynamically
+
+  const nextArrow = document.createElement('button');
+  nextArrow.className = 'glider-next';
+  nextArrow.textContent = '›';  // Right arrow
+
   const chevron = document.createElement('span');
   chevron.className = 'chevron';
   chevron.textContent = '⌃';
 
-  tab.append(label, chevron);
+  const paginationWrapper = document.createElement('div');
+  paginationWrapper.className = 'pagination-wrapper';
+
+  paginationWrapper.append(prevArrow, pageCount, nextArrow);
+  tab.append(label, paginationWrapper, chevron);
+
   document.body.appendChild(tab);
 
   // Toggle drawer
-  tab.addEventListener('click', () => {
+  tab.addEventListener('click', (e) => {
+    // Ignore clicks on arrows to avoid toggling drawer
+    if (e.target.closest('button.glider-prev') || e.target.closest('button.glider-next')) return;
+
     const isOpen = drawerContent.classList.toggle('open');
     tab.classList.toggle('open', isOpen);
     tab.style.bottom = isOpen ? '300px' : '0';
@@ -137,10 +194,18 @@ if (!document.querySelector('#drawer-tab')) {
   gliderScript.src = 'https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.js';
   gliderScript.onload = () => {
     const gliderElement = drawerContent.querySelector('.glider');
-    new Glider(gliderElement, {
+    const pageCountElem = document.querySelector('#drawer-tab .page-count');
+    const totalSlides = gliderElement.querySelectorAll('.glider-slide').length;
+
+    const gliderInstance = new Glider(gliderElement, {
       slidesToShow: 4,
       slidesToScroll: 1,
       draggable: true,
+      scrollLock: true,
+      arrows: {
+        prev: '#drawer-tab .glider-prev',
+        next: '#drawer-tab .glider-next'
+      },
       responsive: [
         {
           breakpoint: 600,
@@ -152,6 +217,28 @@ if (!document.querySelector('#drawer-tab')) {
         }
       ]
     });
+
+    
+    function getSlidesToShow() {
+        const width = window.innerWidth;
+        if (width < 400) return 1;
+        if (width < 600) return 2;
+        return 4;
+    }
+    
+    // Function to update the page count text
+    function updatePageCount() {
+        const slidesToShow = getSlidesToShow();
+        const currentPage = gliderInstance.page + 1; // gliderInstance.page is zero-based
+        const totalPages = Math.ceil(totalSlides / slidesToShow);
+        pageCountElem.textContent = `${currentPage} / ${totalPages}`;
+    }
+
+    // Initial update
+    updatePageCount(); 
+    gliderElement.addEventListener('glider-loaded', updatePageCount);
+    gliderElement.addEventListener('glider-slide-visible', updatePageCount);
+
   };
   document.body.appendChild(gliderScript);
 }
