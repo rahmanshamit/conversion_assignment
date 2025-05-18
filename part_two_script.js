@@ -65,7 +65,7 @@ style.textContent = `
   }
 
   .glider-slide {
-    max-width: 350px;
+    max-width: 400px;
     flex: 0 0 auto;
     height: 120px;
     background: #e0e0e0;
@@ -82,6 +82,12 @@ style.textContent = `
       min-width: 140px;
     }
   }
+
+  @media (max-width: 399px) {
+  .glider-slide {
+    min-width: 270px !important;
+  }
+}
 
   #drawer-tab button.glider-prev,
   #drawer-tab button.glider-next {
@@ -119,6 +125,76 @@ style.textContent = `
     width: 90px; /* fixed width to keep arrows + count visible */
     justify-content: center; /* center arrows and count inside wrapper */
   }
+
+  .slide-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background: #f2f2f2;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 70%;
+}
+
+.slide-content img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+.tooltip-icon {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  background-color: #333;
+  color: #fff;
+  text-align: left; /* Use center if you prefer */
+  padding: 6px 10px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 120%; /* or 125% depending on spacing preference */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px; /* or 160px */
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .tooltip-text {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+}
+
+@media (max-width: 399px) {
+  .tooltip-text {
+    width: 220px !important;
+    font-size: 18px !important;
+  }
+}
 `;
 document.head.appendChild(style);
 
@@ -130,13 +206,6 @@ if (!document.querySelector('#drawer-tab')) {
   drawerContent.innerHTML = `
     <div class="slider-container">
       <div class="glider">
-        <div class="glider-slide">Slide 1</div>
-        <div class="glider-slide">Slide 2</div>
-        <div class="glider-slide">Slide 3</div>
-        <div class="glider-slide">Slide 4</div>
-        <div class="glider-slide">Slide 5</div>
-        <div class="glider-slide">Slide 6</div>
-        <div class="glider-slide">Slide 7</div>
       </div>
     </div>
   `;
@@ -180,7 +249,7 @@ if (!document.querySelector('#drawer-tab')) {
     if (e.target.closest('button.glider-prev') || e.target.closest('button.glider-next')) return;
 
     const isOpen = drawerContent.classList.toggle('open');
-    tab.classList.toggle('open', isOpen);
+    tab.classList.toggle('open', isOpen);``
     tab.style.bottom = isOpen ? '300px' : '0';
   });
 
@@ -192,54 +261,97 @@ if (!document.querySelector('#drawer-tab')) {
 
   const gliderScript = document.createElement('script');
   gliderScript.src = 'https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.js';
+
   gliderScript.onload = () => {
-    const gliderElement = drawerContent.querySelector('.glider');
-    const pageCountElem = document.querySelector('#drawer-tab .page-count');
+  const gliderElement = drawerContent.querySelector('.glider');
+  const pageCountElem = document.querySelector('#drawer-tab .page-count');
+
+  function getSlidesToShow() {
+    const width = window.innerWidth;
+    if (width < 400) return 1;
+    if (width < 600) return 2;
+    return 4;
+  }
+
+  function updatePageCount(gliderInstance) {
     const totalSlides = gliderElement.querySelectorAll('.glider-slide').length;
+    const currentPage = gliderInstance.page + 1;
+    const totalPages = Math.ceil(totalSlides / getSlidesToShow());
+    pageCountElem.textContent = `${currentPage} / ${totalPages}`;
+  }
 
-    const gliderInstance = new Glider(gliderElement, {
-      slidesToShow: 4,
-      slidesToScroll: 1,
-      draggable: true,
-      scrollLock: true,
-      arrows: {
-        prev: '#drawer-tab .glider-prev',
-        next: '#drawer-tab .glider-next'
-      },
-      responsive: [
-        {
-          breakpoint: 600,
-          settings: { slidesToShow: 2 }
+  fetch('https://pokeapi.co/api/v2/pokemon?limit=7')
+    .then(res => res.json())
+    .then(async data => {
+      for (const pokemon of data.results) {
+        const res = await fetch(pokemon.url);
+        const details = await res.json();
+
+        const name = details.name;
+        const image = details.sprites.front_default;
+        const type = details.types.map(t => t.type.name).join(', ');
+        const abilities = details.abilities.map(a => a.ability.name).join(', ');
+
+        const slide = document.createElement('div');
+        slide.className = 'glider-slide';
+        slide.innerHTML = `
+          <div class="slide-content">
+            <img src="${image}" alt="${name}" style="max-width: 100px; display:block; margin:auto;" />
+            <h3 style="font-size: 20px;">${name}</h3>
+            <p style="margin: 0 0 6px;">Type: ${type}</p>
+            <div class="tooltip-container" style="position: relative; display: inline-block;">
+              <span class="tooltip-icon" style="cursor:pointer;">ℹ️</span>
+              <div class="tooltip-text">
+                Abilities: ${abilities}
+              </div>
+            </div>
+            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer" class="button">Learn</a>
+          </div>
+        `;
+        gliderElement.appendChild(slide);
+      }
+
+      // Tooltip hover logic
+      document.querySelectorAll('.tooltip-container').forEach(container => {
+        const icon = container.querySelector('.tooltip-icon');
+        const tooltip = container.querySelector('.tooltip-text');
+        icon.addEventListener('mouseenter', () => {
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+        });
+        icon.addEventListener('mouseleave', () => {
+          tooltip.style.visibility = 'hidden';
+          tooltip.style.opacity = '0';
+        });
+      });
+
+      // Initialize Glider AFTER slides are populated
+      const gliderInstance = new Glider(gliderElement, {
+        slidesToShow: getSlidesToShow(),
+        slidesToScroll: 1,
+        draggable: true,
+        scrollLock: true,
+        arrows: {
+          prev: '#drawer-tab .glider-prev',
+          next: '#drawer-tab .glider-next'
         },
-        {
-          breakpoint: 400,
-          settings: { slidesToShow: 1 }
-        }
-      ]
+        responsive: [
+          {
+            breakpoint: 600,
+            settings: { slidesToShow: 2 }
+          },
+          {
+            breakpoint: 400,
+            settings: { slidesToShow: 1 }
+          }
+        ]
+      });
+
+      updatePageCount(gliderInstance);
+      gliderElement.addEventListener('glider-slide-visible', () => updatePageCount(gliderInstance));
     });
+};
 
-    
-    function getSlidesToShow() {
-        const width = window.innerWidth;
-        if (width < 400) return 1;
-        if (width < 600) return 2;
-        return 4;
-    }
-    
-    // Function to update the page count text
-    function updatePageCount() {
-        const slidesToShow = getSlidesToShow();
-        const currentPage = gliderInstance.page + 1; // gliderInstance.page is zero-based
-        const totalPages = Math.ceil(totalSlides / slidesToShow);
-        pageCountElem.textContent = `${currentPage} / ${totalPages}`;
-    }
-
-    // Initial update
-    updatePageCount(); 
-    gliderElement.addEventListener('glider-loaded', updatePageCount);
-    gliderElement.addEventListener('glider-slide-visible', updatePageCount);
-
-  };
   document.body.appendChild(gliderScript);
 }
 
