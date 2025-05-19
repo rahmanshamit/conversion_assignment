@@ -177,6 +177,9 @@
   const email = form.querySelector('input[name="email"]');
   const textarea = form.querySelector('textarea[name="how_can_we_help_you___contact_us_form_"]');
   const textarea_two = form.querySelector('input[name="conversion__how_did_you_hear_about_us_"]');
+  const submitBtn = form.querySelector('input[type="submit"]');
+  // Hide submit button initially
+  if (submitBtn) submitBtn.style.display = 'none';
 
   function updateProgressBarUI() {
     stepElements.forEach((el) => {
@@ -201,8 +204,7 @@
       if (f) f.closest('fieldset')?.style?.setProperty('display', showStep2 ? '' : 'none');
     });
 
-    if (submitBtn) submitBtn.style.display = showStep2 ? '' : 'none';
-    if (thankYou) thankYou.style.display = showStep3 ? '' : 'none';
+    if (submitBtn) submitBtn.style.display = showStep3 ? '' : 'none';
 
     updateProgressBarUI();
   }
@@ -224,6 +226,11 @@
 
     if (step2Complete) {
       completedSteps.add(2);
+      completedSteps.add(3);  
+    }
+
+    if (submitBtn) {
+      submitBtn.style.display = step2Complete ? '' : 'none';
     }
 
     updateProgressBarUI();
@@ -237,14 +244,6 @@
     el?.addEventListener('input', checkStepCompletion);
     el?.addEventListener('change', checkStepCompletion);
   });
-
-  const observer = new MutationObserver(() => {
-    if (thankYou && getComputedStyle(thankYou).display !== 'none') {
-      completedSteps.add(3);
-      goToStep(3);
-    }
-  });
-  observer.observe(form, { childList: true, subtree: true });
 
   goToStep(1); // Initial render
 }
