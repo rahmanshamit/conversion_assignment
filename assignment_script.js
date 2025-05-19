@@ -2,7 +2,7 @@
   // Inject all required CSS styles into document head
   const styleTag = document.createElement('style');
   styleTag.textContent = `
-    /* Paste in CSS from assignment_style.css file */
+  /* Paste CSS here */
   `;
   document.head.appendChild(styleTag);
 
@@ -175,10 +175,8 @@
   const firstname = form.querySelector('input[name="firstname"]');
   const lastname = form.querySelector('input[name="lastname"]');
   const email = form.querySelector('input[name="email"]');
-  const textarea = form.querySelector('textarea[name="how_can_we_help"]');
-  const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const thankYou = form.querySelector('.thank-you-message');
+  const textarea = form.querySelector('textarea[name="how_can_we_help_you___contact_us_form_"]');
+  const textarea_two = form.querySelector('input[name="conversion__how_did_you_hear_about_us_"]');
 
   function updateProgressBarUI() {
     stepElements.forEach((el) => {
@@ -199,7 +197,7 @@
       if (f) f.closest('fieldset')?.style?.setProperty('display', showStep1 ? '' : 'none');
     });
 
-    [textarea, ...checkboxes].forEach(f => {
+    [textarea, textarea_two].forEach(f => {
       if (f) f.closest('fieldset')?.style?.setProperty('display', showStep2 ? '' : 'none');
     });
 
@@ -215,10 +213,9 @@
       lastname?.value.trim() &&
       email?.value.trim();
 
-    const checkboxChecked = Array.from(checkboxes).some(c => c.checked);
     const step2Complete =
       textarea?.value.trim() &&
-      checkboxChecked;
+      textarea_two?.value.trim()
 
     if (step1Complete) {
       completedSteps.add(1);
@@ -236,7 +233,7 @@
     el?.addEventListener('blur', checkStepCompletion);
   });
 
-  [textarea, ...checkboxes].forEach(el => {
+  [textarea, textarea_two].forEach(el => {
     el?.addEventListener('input', checkStepCompletion);
     el?.addEventListener('change', checkStepCompletion);
   });
