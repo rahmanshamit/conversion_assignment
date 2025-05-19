@@ -118,10 +118,26 @@ if (!document.querySelector('#drawer-tab')) {
         gliderElement.appendChild(slide);
       }
 
-      // Tooltip hover logic
+      function setupTooltips() {
+        document.querySelectorAll('.tooltip-container').forEach(container => {
+        const icon = container.querySelector('.tooltip-icon');
+        const tooltip = container.querySelector('.tooltip-text');
+
+        // Remove any previous listeners to avoid duplicates
+        icon.replaceWith(icon.cloneNode(true)); 
+      });
+
+      // Tooltip logic
       document.querySelectorAll('.tooltip-container').forEach(container => {
         const icon = container.querySelector('.tooltip-icon');
         const tooltip = container.querySelector('.tooltip-text');
+
+      // Clear tooltip visibility on setup
+      tooltip.style.visibility = 'hidden';
+      tooltip.style.opacity = '0';
+
+      if (window.innerWidth > 1000) {
+        // Use hover
         icon.addEventListener('mouseenter', () => {
           tooltip.style.visibility = 'visible';
           tooltip.style.opacity = '1';
@@ -130,6 +146,35 @@ if (!document.querySelector('#drawer-tab')) {
           tooltip.style.visibility = 'hidden';
           tooltip.style.opacity = '0';
         });
+      } else {
+        // Use click toggle
+        icon.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent click bubbling
+          const isVisible = tooltip.style.visibility === 'visible';
+          // Hide all tooltips first
+          document.querySelectorAll('.tooltip-text').forEach(t => {
+            t.style.visibility = 'hidden';
+            t.style.opacity = '0';
+          });
+        if (!isVisible) {
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+        }
+      });
+
+        // Hide tooltip if user clicks anywhere else
+        document.addEventListener('click', () => {
+          tooltip.style.visibility = 'hidden';
+          tooltip.style.opacity = '0';
+        });
+      }
+    });
+  }
+
+// Call once on load and also on resize
+setupTooltips();
+window.addEventListener('resize', () => {
+  setupTooltips();
       });
 
       // Initialize Glider AFTER slides are populated
